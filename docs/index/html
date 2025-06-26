@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学的心理読解者</title>
+    <!-- Tailwind CSS CDNを読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Google Fonts - Interを読み込み */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* 背景色を設定 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 画面全体の高さを確保 */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        /* モーダルオーバーレイの基本スタイル（最初は非表示） */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* 半透明の黒 */
+            display: none; /* 初期状態では非表示 */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* 他の要素より手前に表示 */
+            overflow-y: auto; /* モーダル内容が長い場合にスクロール可能に */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        /* モーダル内容のスタイル */
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative; /* 閉じるボタンの配置のため */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease-out; /* フェードインアニメーション */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* モーダル内の画像をレスポンシブに表示 */
+            gap: 20px;
+            justify-items: center; /* グリッドアイテムを中央揃え */
+            align-items: start;
+        }
+        /* モーダル内の画像コンテナのスタイル */
+        .modal-content .modal-image-container {
+            flex-shrink: 0; /* 縮小しない */
+            max-width: 250px; /* モーダル内の画像の最大幅 */
+            width: 100%; /* 親要素の幅に合わせる */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content .modal-image-container img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .explain{
+            width: 299.03px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .white{
+            color: #fff
+        }
+        /* フェードインアニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- 全体を囲むコンテナ。中央に配置され、シャドウと角丸が適用されます。 -->
+    <div class="container mx-auto p-4 bg-white shadow-lg rounded-xl max-w-7xl">
+        <header class="text-3xl font-bold text-center text-gray-800 mb-8 md:text-4xl">
+            数学的心理読解者
+        </header>
+
+        <!-- 画像が追加されるメインエリア -->
+        <main name="main" class="grid grid-cols-9 gap-4 mb-8">
+            <!-- ここにmath.jsによって画像が動的に追加されます -->
+        </main>
+
+        <footer class="text-center">
+            <button id="readMyMindBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                私の心を読んで
+            </button>
+            <p class="explain"><span>やり方</span>
+                <br><span>1.２桁の数をイメージします。        </span>
+                <br><spam>2.その数の１０の位の数を２倍します。 </spam>
+                <br><span>3.(2)から１の位の数を引きます。     </span>
+                <br><span>4.(1)に(3)を足します。             </span>
+                <br><span>5.（４）の数字の絵を覚えてください。 </span>
+                <br><span>6.「私の心を読んで」ボタンを押すと…？</span></p>
+        </footer>
+    </div>
+
+    <!-- モーダルオーバーレイ -->
+    <div id="imageModal" class="modal-overlay">
+        <!-- モーダルコンテンツ -->
+        <div class="modal-content">
+            <!-- 閉じるボタン -->
+            <button id="closeModalBtn" class="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105">
+                &times; 閉じる
+            </button>
+            <!-- ここに9の倍数のIDを持つ画像が追加されます -->
+        </div>
+    </div>
+
+    <script>// 画像ファイルの配列
+const array = [
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZ3AZll-Z8pyL3GWMSoqM0bXHH2aR4ZIKLYFeY6Wxo2oEj93iCRD31hNBjoLyl0qWTwxaunElgmoDGyfuoTYgJ3qjqF9Qs0puc6s2JarF4bik4oIPNsTylmuutaLcGruYT-bXTkH2Ezds/s800/undoukai_tokyousou_white.png", // 仮のURL: undoukai_tokyousou_white.png
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjmZLcuoQ2xxyuCo8bLsqehQH8al3txeeXib53UaNM-lZ9-lWY4rj8KTZjyLpVI3LoNgtm-tYn5VLX4yjssHPEIwBM-dl8N1iJURjuIlf-GOyeSIcQqBIte7mZ7W70vN6VhjZxQTLQZ9mNb/s800/job_teacher_man.png",     // 仮のURL: job_teacher_man.png
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOqHLZ48mnh3bjYcyQbCja35mK2ILl0JqB0LM3OlBbtFb7EENAmw_KPo0dBPsJvvMRFlHhwOMwA64xi76t5AaG_GemvEqLAONvmz6s9KbUDZKFfHTC0iMnVuRzGbbMJyWhfLyMDJw0iuWn/s988/seiji_souridaijin_nobg3.png",      // 仮のURL: seiji_souridaijin_nobg3.png
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0wLPVQttpvUbY4XFjk914IwSmV-5pDKwk0e_8wimPCT43uaF8uxMWGhtZSQl13C3CGys289_Nknzrg80RFBe3xgliKbzS-B_bXPFewYh-2c7gkxuQIY_qUgS5Mov2jm-L6zRIILniYzA/s800/test_print_happy_schoolboy.png",
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjU-6hO2OR86VQ7BY1VIY4SoMHy3zcAL6XLo4ezEYdZLADRNbTbn8ZXPmCylVAJxBICXePJJSK5fGh87vf0DG8j0bNpj685fXO5plp7QL6GuNHeCOx6Xqgus4ITnJGBP7l-b7KZjKvGBV3c/s800/speech_school_boy.png",
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj1GQBa-pK93YmbFVlyflvzKp3J1O3kYFNBeqfFR7xB5XKocBv0ZgpDgLCxrfEPh3ivTtmZuP_0hWKsSfEYsx81MHLj2jSVpTX8BuVOU9LYeCgR_tmwAPl8Hc9rFaQNEPANMNS1ynvtCU8/s800/kouchou_sensei_speech.png"
+];
+
+/**
+ * 指定されたIDを持つimg要素と、そのIDを表示するp要素を作成し、
+ * それらをまとめたコンテナdivをmain要素に追加します。
+ * @param {string} p - img要素に設定するID
+ * @returns {HTMLDivElement} 作成された画像コンテナ要素
+ */
+function addimg(p) {
+    // 画像とIDテキストをまとめるためのコンテナdivを作成
+    const containerDiv = document.createElement("div");
+    // グリッドアイテムとして中央揃えにするためにflexとflex-colを適用
+    // このクラスは元のグリッド表示用
+    containerDiv.className = "flex flex-col items-center justify-center";
+
+    // img要素を作成
+    const imgElement = document.createElement("img");
+    imgElement.setAttribute("id", p); // IDを設定
+    imgElement.setAttribute("name", "img");
+
+    // Tailwind CSSクラスを適用して画像をスタイル
+    imgElement.className = "w-full h-auto object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105";
+
+    // 画像の読み込みに失敗した場合のフォールバック画像を設定
+    imgElement.onerror = function() {
+        this.onerror = null; // エラーハンドラが複数回実行されないようにリセット
+        this.src = "https://placehold.co/150x150/CCCCCC/666666?text=画像なし"; // 代替画像
+    };
+
+    // IDの値を表示するためのp要素を作成
+    const idTextElement = document.createElement("p");
+    idTextElement.textContent = p; // IDをテキストとして設定
+    // IDテキストを中央揃え、小さめのフォント、薄い灰色、上部に少しマージンを設定
+    idTextElement.className = "text-center text-xs text-gray-600 mt-1 truncate w-full px-1"; // truncateで長すぎるIDを省略
+
+    // コンテナdivに画像とIDテキストを追加
+    containerDiv.appendChild(imgElement);
+    containerDiv.appendChild(idTextElement);
+
+    const mainElement = document.getElementsByName("main")[0];
+    if (mainElement) {
+        mainElement.appendChild(containerDiv); // コンテナdivをmain要素に追加
+    } else {
+        console.error("メイン要素が見つかりません。name='main'の要素が存在することを確認してください。");
+    }
+    return containerDiv; // 作成したコンテナを返す
+}
+
+/**
+ * ページロード時に画像を生成し、ランダムに配置します。
+ * 全体で75個の画像が生成され、9の倍数番目の画像は特定の画像になります。
+ */
+function start() {
+    // 9の倍数番目の画像に使用する固定の画像のインデックスをランダムに決定
+    const fixedImageIndex = Math.floor(Math.random() * array.length);
+
+    // 7から81までのIDを持つ画像を生成（合計75個）
+    // grid-cols-9によって、自動的に横に9個の列が形成されます。
+    for (let i = 7; i <= 114; i++) {
+        const imageContainer = addimg(String(i)); // 画像要素とIDテキストをまとめたコンテナを作成し、DOMに追加
+
+        // コンテナ内の画像要素にアクセスしてsrcを設定
+        const currentImage = imageContainer.querySelector('img');
+
+        if (currentImage) {
+            // 9の倍数番目の画像（i%9==0）は固定の画像を使用
+            // JavaScriptの剰余演算子では、i%9===0はiが9の倍数の場合にtrueになります。
+            // 例えば、9, 18, 27...
+            if (i % 12 === 0) {
+                currentImage.setAttribute("src", array[fixedImageIndex]);
+            } else {
+                // それ以外の画像はランダムに選択
+                const randomIndex = Math.floor(Math.random() * array.length);
+                currentImage.setAttribute("src", array[randomIndex]);
+            }
+        }
+    }
+    // イベントリスナーのセットアップ
+    setupEventListeners();
+}
+
+/**
+ * モーダル表示と非表示のイベントリスナーを設定します。
+ */
+function setupEventListeners() {
+    const readMyMindBtn = document.getElementById("readMyMindBtn");
+    const imageModal = document.getElementById("imageModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const modalContent = imageModal.querySelector(".modal-content");
+
+    // 「私の心を読んで」ボタンクリックイベント
+    if (readMyMindBtn) {
+        readMyMindBtn.addEventListener("click", () => {
+            // モーダルコンテンツをクリア (閉じるボタンはクリアしない)
+            while (modalContent.children.length > 1) {
+                modalContent.removeChild(modalContent.lastChild);
+            }
+
+            const allNineMultipleImageContainers = [];
+            const allImageContainers = document.querySelectorAll("main > div"); // main内のすべての画像コンテナを取得
+
+            allImageContainers.forEach(container => {
+                const imgElement = container.querySelector('img');
+                if (imgElement) {
+                    const imgId = parseInt(imgElement.id, 10); // IDを数値に変換
+                    if (imgId % 12 === 0) {
+                        allNineMultipleImageContainers.push(container); // 9の倍数のIDを持つコンテナを配列に追加
+                    }
+                }
+            });
+
+            if (allNineMultipleImageContainers.length > 0) {
+                // 9の倍数のIDを持つ画像の中からランダムに1枚を選択
+                const randomIndex = Math.floor(Math.random() * allNineMultipleImageContainers.length);
+                const selectedContainer = allNineMultipleImageContainers[randomIndex];
+
+                // 選択された画像をクローンし、モーダルに追加
+                const clonedContainer = selectedContainer.cloneNode(true); // コンテナと子要素を深くクローン
+                // クローンされた要素にモーダル表示用のクラスを追加
+                clonedContainer.classList.add('modal-image-container');
+                // 元のhoverエフェクトがモーダルで不要な場合は削除
+                clonedContainer.querySelector('img').classList.remove('hover:scale-105');
+                clonedContainer.querySelector("p").setAttribute("class","white")
+                
+                // モーダルコンテンツにクローンされた画像を追加
+                modalContent.appendChild(clonedContainer);
+            } else {
+                // 9の倍数のIDを持つ画像が見つからなかった場合のメッセージ
+                const noImageMessage = document.createElement("p");
+                noImageMessage.textContent = "9の倍数のIDを持つ画像が見つかりませんでした。";
+                noImageMessage.className = "text-lg text-gray-700";
+                modalContent.appendChild(noImageMessage);
+            }
+
+            // モーダルを表示
+            imageModal.style.display = "flex";
+        });
+    } else {
+        console.error("「私の心を読んで」ボタンが見つかりません。IDが 'readMyMindBtn' であることを確認してください。");
+    }
+
+    // 閉じるボタンクリックイベント
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+            imageModal.style.display = "none"; // モーダルを非表示
+        });
+    }
+
+    // モーダルオーバーレイのクリックイベント（モーダルの外側をクリックで閉じる）
+    if (imageModal) {
+        imageModal.addEventListener("click", (event) => {
+            if (event.target === imageModal) { // オーバーレイ自体がクリックされた場合
+                imageModal.style.display = "none"; // モーダルを非表示
+            }
+        });
+    }
+}
+
+// ページが完全に読み込まれた後にstart関数を実行
+window.addEventListener("load", start);
+</script>
+</body>
+</html>
